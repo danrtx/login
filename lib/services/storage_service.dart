@@ -211,13 +211,20 @@ class StorageService {
   /// Eliminar documento
   Future<bool> deleteDocument(String filePath) async {
     try {
-      await _supabase.storage
+      print('Intentando eliminar archivo: $filePath');
+      print('Bucket utilizado: $documentsBucket');
+      
+      final response = await _supabase.storage
           .from(documentsBucket)
           .remove([filePath]);
-
+      
+      print('Respuesta de eliminación: $response');
       return true;
     } catch (e) {
       print('Error al eliminar documento: $e');
+      print('Tipo de error: ${e.runtimeType}');
+      print('Ruta del archivo: $filePath');
+      print('Bucket: $documentsBucket');
       return false;
     }
   }

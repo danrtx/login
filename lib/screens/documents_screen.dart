@@ -117,8 +117,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) return;
 
-      final filePath = 'documents/${document.name}';
-      final success = await _storageService.deleteDocument('$userId/$filePath');
+      final filePath = '$userId/documents/${document.name}';
+      final success = await _storageService.deleteDocument(filePath);
       
       if (success) {
         _showSuccessSnackBar('Archivo eliminado exitosamente');

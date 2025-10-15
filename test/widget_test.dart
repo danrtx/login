@@ -8,15 +8,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:login_app/main.dart';
+import 'package:singledocs/main.dart';
 
 void main() {
-  testWidgets('Login app smoke test', (WidgetTester tester) async {
+  testWidgets('SingleDocs app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const LoginApp());
+    await tester.pumpWidget(const SingleDocsApp());
 
     // Verify that our splash screen shows initially
-    expect(find.text('Login App'), findsOneWidget);
-    expect(find.text('Autenticación segura con Supabase'), findsOneWidget);
+    expect(find.text('SingleDocs'), findsOneWidget);
+    expect(find.text('Organizador personal de documentos'), findsOneWidget);
   });
 }
