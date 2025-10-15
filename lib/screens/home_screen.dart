@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/storage_service.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,6 +12,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
+  final StorageService _storageService = StorageService();
+  String? _profileImageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  /// Cargar imagen de perfil del usuario
+  Future<void> _loadProfileImage() async {
+    try {
+      final imageUrl = await _storageService.getProfileImageUrl();
+      if (mounted) {
+        setState(() => _profileImageUrl = imageUrl);
+      }
+    } catch (e) {
+      print('Error al cargar imagen de perfil: $e');
+    }
+  }
 
   Future<void> _signOut() async {
     try {
@@ -69,12 +90,44 @@ class _HomeScreenState extends State<HomeScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inicio'),
+        title: const Text('SingleDocs'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            onPressed: _showSignOutDialog,
-            icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesión',
+          // Avatar del usuario en el AppBar
+          GestureDetector(
+            onTap: () async {
+              await Navigator.pushNamed(context, '/profile');
+              _loadProfileImage(); // Recargar imagen al volver
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.white,
+                child: _profileImageUrl != null
+                    ? ClipOval(
+                        child: Image.network(
+                          _profileImageUrl!,
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              color: Colors.blue,
+                              size: 20,
+                            );
+                          },
+                        ),
+                      )
+                    : const Icon(
+                        Icons.person,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+              ),
+            ),
           ),
         ],
       ),
@@ -110,11 +163,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                              width: 2,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.person,
-                            size: 30,
-                            color: Colors.white,
+                          child: ClipOval(
+                            child: _profileImageUrl != null
+                                ? Image.network(
+                                    _profileImageUrl!,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.person,
+                                        size: 30,
+                                        color: Colors.white,
+                                      );
+                                    },
+                                  )
+                                : const Icon(
+                                    Icons.person,
+                                    size: 30,
+                                    color: Colors.white,
+                                  ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -221,24 +294,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildActionButton(
-                      icon: Icons.refresh,
-                      label: 'Actualizar información',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Información actualizada'),
-                          ),
-                        );
+                      icon: Icons.person,
+                      label: 'Mi Perfil',
+                      onTap: () async {
+                        await Navigator.pushNamed(context, '/profile');
+                        _loadProfileImage(); // Recargar imagen al volver
                       },
                     ),
                     const SizedBox(height: 12),
                     _buildActionButton(
-                      icon: Icons.settings,
-                      label: 'Configuración',
+                      icon: Icons.folder,
+                      label: 'Mis Documentos',
                       onTap: () {
+                        Navigator.pushNamed(context, '/documents');
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildActionButton(
+                      icon: Icons.refresh,
+                      label: 'Actualizar información',
+                      onTap: () {
+                        _loadProfileImage();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Función en desarrollo'),
+                            content: Text('Información actualizada'),
                           ),
                         );
                       },

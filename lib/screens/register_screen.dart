@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
 import '../services/auth_service.dart';
 import 'home_screen.dart';
@@ -95,20 +96,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
-                // Logo
+                // Logo SingleDocs
                 Center(
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                    child: const Icon(
-                      Icons.person_add_outlined,
-                      size: 40,
-                      color: Colors.white,
-                    ),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/singledocs_logo.svg',
+                        width: 100,
+                        height: 100,
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'SingleDocs',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 30),
