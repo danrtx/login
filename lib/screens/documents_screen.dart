@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/storage_service.dart';
+import 'document_preview_screen.dart';
 
 class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
@@ -160,6 +161,30 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     _showSuccessSnackBar('Descargando ${document.name}...');
   }
 
+  void _previewDocument(FileObject document) {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    final filePath = '$userId/documents/${document.name}';
+    
+    // Obtener el tipo de archivo desde el nombre
+    String fileType = '';
+    if (document.name.contains('.')) {
+      fileType = document.name.split('.').last.toLowerCase();
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DocumentPreviewScreen(
+          fileName: document.name,
+          filePath: filePath,
+          fileType: fileType,
+        ),
+      ),
+    );
+  }
+
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -314,9 +339,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                     ),
                                 ],
                               ),
-                              trailing: PopupMenuButton<String>(
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    onPressed: () => _previewDocument(document),
+                                    icon: const Icon(Icons.visibility),
+                                    color: Colors.blue,
+                                    tooltip: 'Vista previa',
+                                  ),
+                                  PopupMenuButton<String>(
                                 onSelected: (value) {
                                   switch (value) {
+                                    case 'preview':
+                                      _previewDocument(document);
+                                      break;
                                     case 'download':
                                       _downloadFile(document);
                                       break;
@@ -326,6 +363,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                   }
                                 },
                                 itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'preview',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.visibility, color: Colors.blue),
+                                        SizedBox(width: 8),
+                                        Text('Vista previa'),
+                                      ],
+                                    ),
+                                  ),
                                   const PopupMenuItem(
                                     value: 'download',
                                     child: Row(
@@ -345,6 +392,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                         Text('Eliminar', style: TextStyle(color: Colors.red)),
                                       ],
                                     ),
+                                  ),
+                                ],
                                   ),
                                 ],
                               ),
